@@ -46,7 +46,7 @@ IsTextSingle PROCEDURE(LONG FEQ, BOOL TurnOff)!,BOOL Private
 PasswordAcceptedClipClean PROCEDURE(LONG FEQ=0) !Clear Clipboard if it contains password
     CODE
     IF FEQ=0 THEN FEQ=ACCEPTED().
-    IF CONTENTS(FEQ)=CLIPBOARD() THEN
+    IF UPPER(CONTENTS(FEQ))=UPPER(CLIPBOARD()) THEN
        SETCLIPBOARD('')
     END
     RETURN
