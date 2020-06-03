@@ -6,7 +6,7 @@ One workaround is to `Alert(CtrlV)` and when the key is pressed `CHANGE(?Pwd,Cli
 
 The project in this repository shows an easier workaround and some other tricks and tips, plus a better looking password control.
 
-![Screen capture](readme_win.png)
+<img src="readme_win.png" width="640"/>
 
 ## TEXT Control with Win32 ES_PASSWORD can Paste
 
@@ -23,8 +23,8 @@ EM_SETPASSWORDCHAR EQUATE(00CCh)
 
 - [ ] Add `PasswordOnTextPROP() PROCEDURE` to your APP with `INCLUDE('CBPasswordText.inc'),ONCE` in the MAP
 - [ ] Change `ENTRY,PASSWORD` to `TEXT,SINGLE`
-- [ ] Call `PasswordOnTextPROP(?Pwd)` to make it password &ast;&ast;&ast;&ast;&ast;
-- [ ] Change any code with `?{PROP:Password}=1/0` to `PasswordOnTextPROP(?,1/0)`
+- [ ] Call `PasswordOnTextPROP(?Pwd)` to make it a password &ast;&ast;&ast;&ast;&ast; style Edit Control
+- [ ] Change any code with `?{PROP:Password}=1/0` to `PasswordOnTextPROP(?,0/1)`
 
 ## Password Control Asterisks [&ast;&ast;&ast;&ast;&ast;] are Ugly
 
@@ -66,9 +66,9 @@ One feature of alerting keys and handling paste is the cliboard can be cleared o
 
 ## TEXT Control can have Cue Banner
 
-If you change the password to a TEXT,SINGLE you can use a Cue Banner as shown below. 
+If you change the password to a TEXT,SINGLE you can use a Cue Banner as shown below.
 
-![Screen capture](readme_cue.png)
+<img src="readme_cue.png" width="480"/>
 
 The cue uses the font of the control so the password cannot use Wingding Dots. To set a Cue Banner just requires sending one wide string message as shown below:
 
@@ -86,12 +86,12 @@ Cue_WStr LONG,OVER(BStrCue) !BSTRING is Pointer to WSTR
 
 Click the Hunt button, pick a font and every possible character shows in an Entry to see if it would make a good password character.
 
-![Screen capture](readme_hunt.png)
+<img src="readme_hunt.png" width="800"/>
 
 A poem with a special character ...
-   > Little Mary took her skates,
-   > upon the ice to frisk.
-   > Wasn't she a little fool,
+   > Little Mary took her skates,  
+   > upon the ice to frisk.  
+   > Wasn't she a little fool,  
    > her little *
 
 
