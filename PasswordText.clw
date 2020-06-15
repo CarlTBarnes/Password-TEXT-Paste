@@ -1,3 +1,9 @@
+!06/11/20   First example has been replaced by PasswordStyle4Text.CwProj
+!           The method here uses message EM_SetPasswordChar that is simpler and less code,
+!           but it forces the password to show an ASCII character like Asterisks **** (without font change).
+!           If you don't have a Manifest this way is fine, but the other method is best with a Manifest. 
+!           Without a Manifest this method lets you have Dots using Wingdings that look nicer. 
+!--------------------------------------------------------------------------------------------------
 !Someone at SV must have read an article that said putting passwords on the clipboard was a bad idea.
 !They changed the ENTRY,PASSWORD so Paste would NOT work. The Right-Click popup has Paste enabled but it does notnhing.
 !So a bad idea and a bad implementation, it confuses users. 
@@ -18,7 +24,7 @@
 !
   PROGRAM
   INCLUDE('KEYCODES.CLW')
-  INCLUDE('CbWndPreview.INC'),ONCE  !Class Files on GitHub CarlTBarnes. Comment out if you don't have
+  INCLUDE('CbWndPreview.INC'),ONCE  !Get from github.com/CarlTBarnes/WindowPreview - Comment out if you don't have
   
   MAP 
     INCLUDE('CbPasswordText.INC'),ONCE  !<-- MUST be in the MAP
@@ -28,15 +34,12 @@ Test_CueBanner_Password PROCEDURE() !Try Text password with Cue Banner
 HuntWingdingPossibles   PROCEDURE() !View all possible Wingdings as a replacemet for ***
 
 PasswordEntryAsDots     PROCEDURE(LONG FEQ, BYTE TurnOffPassword=0, BYTE DotType=0)  !Regular ENTRY using Wingding dots instead of Asterisks ***
-SetCueBanner            PROCEDURE(LONG TextSingleFEQ, STRING CueBannerText, BOOL OnFocusShows=0)
-SetText_GWLStyle_Password  PROCEDURE(LONG TextSingleFEQ, BYTE TurnOffPassword=0)  !Alternative, not needed
+!Moved SetCueBanner               PROCEDURE(LONG TextSingleFEQ, STRING CueBannerText, BOOL OnFocusShows=0)
+!Moved SetText_GWLStyle_Password  PROCEDURE(LONG TextSingleFEQ, BYTE TurnOffPassword=0)  !Alternative, not needed
 ByteHex                   PROCEDURE(BYTE in),STRING
 
     module('win32')
-GetWindowLong   PROCEDURE(LONG hWnd, LONG nIndex ),PASCAL,DLL(1),RAW,LONG,name('GetWindowLongA')
-SetWindowLong   PROCEDURE(LONG hWnd, LONG nIndex, LONG NewLong  ),PASCAL,DLL(1),RAW,LONG,PROC,name('SetWindowLongA')
 SendMessage     PROCEDURE(LONG hWnd, LONG nMsg, LONG wParam, LONG lParam),LONG,PASCAL,DLL(1),PROC,NAME('SendMessageA')
-SendMessageW    PROCEDURE(LONG hWnd, LONG nMsg, LONG wParam, LONG lParam),LONG,PASCAL,DLL(1),PROC!,NAME('SendMessageW')
     END
   END
   
@@ -48,7 +51,9 @@ SendMessageW    PROCEDURE(LONG hWnd, LONG nMsg, LONG wParam, LONG lParam),LONG,P
 !This is overkill, pick one style and code for that like above TextDot
 !Why bother doing this when you can use TEXT above and have Paste work???
 !If you have implemented your own paste maybe this would likely be the least amount of code chnages.
-!---------------------------------------------------- 
+!----------------------------------------------------
+! CBPasswordText.CLW has PasswordOnTextDots(). This function hs more options to play with.
+!----------------------------------------------------
 PasswordEntryAsDots  PROCEDURE(LONG FEQ, BYTE TurnOff=0, BYTE DotType=0 )  !Wingding dots instead of Asterisks ***
 Dot BYTE   !12345678901      [11] put 2 or 3
 Fnt STRING('Wingdings {32}')
@@ -77,18 +82,20 @@ ped_EM_SETPASSWORDCHAR  EQUATE(0CCh)  !WwParam is Character, if Zero then Turn O
     SendMessage(FEQ{PROP:Handle}, ped_EM_SETPASSWORDCHAR, Dot,0)
     HIDE(FEQ) ; UNHIDE(FEQ)  !Repaint
     RETURN 
-!=============================================================
-!Cue Banner only works with TEXT,SINGLE.  Best to put call in Event:OpenWindow but I think works after Open Window
-!e.g. SetCueBanner(?Text1,'Cue Banner Text', 1/0)   ! 1=Show Cue with focus, 0=clear cue on focus 
-!You MUST have a MANIFEST !You MUST have a MANIFEST !You MUST have a MANIFEST
-!-------------------------------------------------------------
-SetCueBanner PROCEDURE(LONG FeqTextSL, STRING CueText, BOOL OnFocusShow=0)
-BStrCue  BSTRING 
-Cue_WStr LONG,OVER(BStrCue) !BSTRING is Pointer to WSTR
-  CODE
-  BStrCue=CLIP(CueText)   !BSTRING converts to UniCode.
-  SendMessageW(FeqTextSL{PROP:Handle},1501h, OnFocusShow, Cue_WStr)      
-  RETURN    !TB_SETCUEBANNER = EQUATE(1501h) !0x1501; //Textbox Integer
+
+!Moved into CBPasswordText.clw
+!!=============================================================
+!!Cue Banner only works with TEXT,SINGLE.  Best to put call in Event:OpenWindow but I think works after Open Window
+!!e.g. SetCueBanner(?Text1,'Cue Banner Text', 1/0)   ! 1=Show Cue with focus, 0=clear cue on focus 
+!!You MUST have a MANIFEST !You MUST have a MANIFEST !You MUST have a MANIFEST
+!!-------------------------------------------------------------
+!SetCueBanner PROCEDURE(LONG FeqTextSL, STRING CueText, BOOL OnFocusShow=0)
+!BStrCue  BSTRING 
+!Cue_WStr LONG,OVER(BStrCue) !BSTRING is Pointer to WSTR
+!  CODE
+!  BStrCue=CLIP(CueText)   !BSTRING converts to UniCode.
+!  SendMessageW(FeqTextSL{PROP:Handle},1501h, OnFocusShow, Cue_WStr)      
+!  RETURN    !TB_SETCUEBANNER = EQUATE(1501h) !0x1501; //Textbox Integer
 
 !===================================================================================!
 !----- Test ----- Test ----- Test ----- Test ----- Test ----- Test ----- Test ----- !
@@ -210,8 +217,8 @@ CbWndPrv CBWndPreviewClass
     CbWndPrv.Init(2)
              !*** WndPrv I ***
 
-    SetCueBanner(?TextUser,'User Name or Email Address',1)
-    SetCueBanner(?TextPwd,'Password or Reset Code'     ,0)             
+    CueBanner_SetForText(?TextUser,'User Name or Email Address',1)
+    CueBanner_SetForText(?TextPwd,'Password or Reset Code'     ,0)             
     PasswordOnTextPROP(?TextUser)
     PasswordOnTextPROP(?TextPwd)   
     !SetTextPropPasswordDots(?TextPwd) !Must NOT change Font or CueBanner uses that font which Wingdings is not readable
@@ -311,34 +318,5 @@ HEX  STRING('0123456789ABCDEF')
   Out[2] = HEX[BAND(in, 0FH) + 1]  ; Out[3]='h'
   RETURN Out
 
-!=========================================================== 
-!Change can also be made to GWL_Style but takes more code. 
-!Code like this can be used for ES_NOHIDESEL to show selected text when control loses focus. Good for spell check.
-!
-SetText_GWLStyle_Password PROCEDURE(LONG FEQ, BYTE TurnOff=0)  
-!                       (LONG TextSingleFEQ, BYTE TurnOffPassword=0)
-WLS LONG
-Hnd LONG
-tp_GWL_STYLE   EQUATE(-16) 
-tp_ES_PASSWORD EQUATE(20h)
-    CODE
-    IF FEQ{PROP:Type}<>CREATE:singleline THEN
-       MESSAGE('Bug! SetText_GWLStyle_Password() requires a TEXT,SINGLE control.')
-       FEQ{PROP:Password}=CHOOSE(~TurnOff)      !In case ENTRY
-       RETURN
-    END
-    Hnd=FEQ{PROP:Handle}
-    WLS=GetWindowLong(Hnd, tp_GWL_STYLE)
-    IF ~TurnOff THEN 
-        WLS=BOR(WLS,tp_ES_PASSWORD)
-    ELSIF TurnOff THEN 
-        WLS=BAND(WLS,BXOR(-1,tp_ES_PASSWORD))
-    END
-    SetWindowLong(Hnd, tp_GWL_STYLE, WLS)
-    FEQ{PROP:Right}=1
-    FEQ{PROP:Left}=1 !forces RTL to Destroy  and Re-Create control to have new style with Password 
-    RETURN
-!ES_PASSWORD
-!Displays an asterisk (*) for each character typed into the edit control. This style is valid only for single-line edit controls.
-!To change the character that is displayed, or set or clear this style, use the EM_SETPASSWORDCHAR message. 
-  
+!06/11/20 Moved SetText_GWLStyle_Password into CBPasswordText Include file
+!         See new example PasswordStyle4Text.CwProj   

@@ -14,6 +14,23 @@
     MODULE('CBPasswordText.CLW')
 
   !!! <summary>
+  !!! Change TEXT,SINGLE control to Password using GwlStyle. Shows Dots if Manifest for Visual Styles. 
+  !!! THIS METHOD IS PREFERRED to the "PasswordOn...Prop" that SendMessage EM_SetPasswordChar
+  !!! </summary>
+  !!! <param name="TextSingleFEQ">FEQ of a TEXT control with the SINGLE attirbute.</param>
+  !!! <param name="TurnOffPassword">False (or omit) to add Password style. True to remove Password style and display actual characters typed.</param>
+PasswordOnText_SetGwlStyle PROCEDURE(LONG TextSingleFEQ, BYTE TurnOffPassword=0)
+
+  !!! <summary>
+  !!! Set Cue Banner on TEXT,SINGLE control. A Cue displays in the Edit control until it contains a value, or optionally focus
+  !!! </summary>
+  !!! <param name="TextSingleFEQ">FEQ of a TEXT control with the SINGLE attirbute.</param>
+  !!! <param name="CueText">The Cue Text to show</param>
+  !!! <param name="OnFocusShow">Leave the Cue displayed when the control has focus until a value is entered.</param>
+CueBanner_SetForText   PROCEDURE(LONG TextSingleFEQ, STRING CueText, BOOL OnFocusShow=0)
+
+!========================= Probbaly should not use the below =======================
+  !!! <summary>
   !!! Change TEXT,SINGLE control to Password style that hides typed value by displaying asterisks for each character.
   !!! </summary>
   !!! <param name="TextSingleFEQ">FEQ of a TEXT control with the SINGLE attirbute.</param>
