@@ -18,6 +18,7 @@ WLS LONG
 Hnd LONG
 tp_GWL_STYLE   EQUATE(-16) 
 tp_ES_PASSWORD EQUATE(20h) 
+tp_ES_RIGHT    EQUATE(2) 
 ErrWnd WINDOW('PasswordSetWithGwlStyle Bug'),AT(,,280,40),CENTER,GRAY,SYSTEM
         STRING('Bug! PasswordSetWithGwlStyle() requires a TEXT,SINGLE control.'),AT(1,15,280), |
                 USE(?StrErr1),CENTER
@@ -35,8 +36,9 @@ ErrWnd WINDOW('PasswordSetWithGwlStyle Bug'),AT(,,280,40),CENTER,GRAY,SYSTEM
     ELSIF TurnOff THEN 
         WLS=BAND(WLS,BXOR(-1,tp_ES_PASSWORD))
     END
+    WLS=BOR(WLS,tp_ES_RIGHT)                !Right align with API so PROP:Right below not needed
     SetWindowLongA(Hnd, tp_GWL_STYLE, WLS)  !Password Style change on existing control will NOT happen
-    FEQ{PROP:Right}=1                       !Alignment change forces RTL to Destroy and Create Control
+!    FEQ{PROP:Right}=1                      !Alignment change forces RTL to Destroy and Create Control
     FEQ{PROP:Left}=1                        !RTL will retain my GwlStyle. I want it LEFT not RIGHT.
     RETURN
 
