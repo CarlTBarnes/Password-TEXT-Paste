@@ -15,6 +15,8 @@ Code changes are similar to Release 1, just a different function to call:
 - [ ] Change any code with `?{PROP:Password}=1/0` to `PasswordOnText_SetGwlStyle(?,0/1)`
 - [ ] *Optional:* In ?Pwd EVENT:Accepted call `PasswordAcceptedClipClean(?)` to clear the clipboard if the password was pasted
 
+4/9/2021 - Added a "Peek Eye" Icon (Webdings N) next to the Password field. When user hovers the mouse over the "Peek Eye" the password unhides.
+
 **Tip:** The ES_Password style must be set when the control is created, so adding the style to an existing control will not work. To get the RTL to Destroy and Create the control a property must be changed that the RTL recognizes as needing the Destroy+Create. The easiest is alignment with ``?Text{PROP:Right}=1 ; ?Text{PROP:Left}=1``. The RTL preserves the other style bits, like ES_Password. Thanks to Jim Kane for that tip, which he acknowledged Richard Chapman as the source. The desired style then was ES_NoHideSel that on TEXT shows the selection when the control loses focus, something nice for spell check.  Back in C6 setting PROP:Left=1 alone worked, but apparently an optimization checks if the alignment did not change.
 
 ---

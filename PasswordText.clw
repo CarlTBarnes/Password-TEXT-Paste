@@ -1,3 +1,8 @@
+! REPLACED by PasswordStyle4Text.CwProj <--- OPEN THIS INSTEAD
+!--------------------------------------------------------------------------------------------------
+!04/09/21
+!           Added a "Eye Peek" Icon (Webdings N) next to the password field.
+!
 !06/11/20   First example has been replaced by PasswordStyle4Text.CwProj
 !           The method here uses message EM_SetPasswordChar that is simpler and less code,
 !           but it forces the password to show an ASCII character like Asterisks **** (without font change).
@@ -108,33 +113,38 @@ EntryPwd  STRING(20)
 TextUser  STRING(20)  
 TextPwd   STRING(20)
 P         BYTE 
+PeekFEQ   LONG   !Clone Password ENTRY CREATE()'d to show the Password
 
-Window WINDOW('Login - API TEXT Password versus Clarion ENTRY'),AT(,,307,113),CENTER,GRAY,SYSTEM,ICON(ICON:Paste), |
-            FONT('Segoe UI',9)
+Window WINDOW('Login - API TEXT Password versus Clarion ENTRY'),AT(,,307,113),CENTER,GRAY,SYSTEM, |
+            ICON(ICON:Paste),FONT('Segoe UI',9)
         STRING('Password as TEXT,SINGLE + ES_Password'),AT(11,4),FONT(,10,,FONT:regular+FONT:underline)
         PROMPT('User Name:'),AT(11,21),USE(?TextUser:Pmt)
         TEXT,AT(51,21,50,11),USE(TextUser),SINGLE
         PROMPT('Password:'),AT(11,39),USE(?TextPwd:Pmt)
         TEXT,AT(51,39,50,11),USE(TextPwd),SINGLE
+        STRING('N'),AT(105,38),USE(?EyePeekPwd:String),FONT('Webdings',16)
+        REGION,AT(103,38,14,14),USE(?EyePeekPwd:REGION),IMM
         PROMPT('Unmasked:'),AT(11,54),USE(?TextPwd:Pmt:2)
-        TEXT,AT(51,54,50,11),USE(TextPwd,, ?TextPwd:Unmasked),SKIP,TIP('Password field w/o "ES_Password"'),READONLY,SINGLE
+        TEXT,AT(51,54,50,11),USE(TextPwd,, ?TextPwd:Unmasked),SKIP,TIP('Password field w/o "ES_Password"'), |
+                READONLY,SINGLE
         CHECK('&Show Name'),AT(106,21),USE(bShowName),SKIP
         BUTTON('Login'),AT(25,73,35),USE(?LoginBtn)
         BUTTON('Cancel'),AT(63,73,35),USE(?CancelBtn),STD(STD:Close)
-        BUTTON('Cue Banner'),AT(112,73,47,14),USE(?CueBannerBtn),FONT(,8)
-        BUTTON('SetClipboard<13,10>to Clock()'),AT(112,39,47,24),USE(?TimeBtn),SKIP,FONT(,8),TIP('Put time on clipboard ' & |
-                'to have something to paste')
-        BUTTON('<0DCh>'),AT(238,55,14,14),USE(?PwdChar),SKIP,FONT('Wingdings 2'),TIP('Select different character for Pas' & |
-                'swordEntryAsDots()')
-        BUTTON('Hunt'),AT(255,55,23,14),USE(?HuntWingDingBtn),FONT(,8),TIP('See possible wingding characters')
+        BUTTON('Cue Banner'),AT(121,73,47,14),USE(?CueBannerBtn),FONT(,8)
+        BUTTON('Set<13,10>Clip to<13,10>Clock()'),AT(138,40,30,28),USE(?TimeBtn),SKIP,FONT(,8), |
+                TIP('Put time on clipboard to have something to paste')
+        BUTTON('<0DCh>'),AT(238,55,14,14),USE(?PwdChar),SKIP,FONT('Wingdings 2'),TIP('Select differe' & |
+                'nt character for PasswordEntryAsDots()')
+        BUTTON('Hunt'),AT(255,55,23,14),USE(?HuntWingDingBtn),FONT(,8),TIP('See possible wingding ch' & |
+                'aracters')
         PANEL,AT(177,3,1,105),USE(?PANEL1),BEVEL(0,0,6000H)
         STRING('Clarion ENTRY + Password'),AT(193,4),FONT(,10,,FONT:regular+FONT:underline)
         PROMPT('User Name:'),AT(193,22,50,11),USE(?EntryName:Pmt)
         ENTRY(@s20),AT(233,22,50),USE(EntryUser),PASSWORD
         PROMPT('Password:'),AT(193,40,50,11),USE(?EntryPwd:Pmt)
         ENTRY(@s20),AT(233,40,50),USE(EntryPwd),PASSWORD
-        BUTTON,AT(287,40,11,11),USE(?PastePwd),SKIP,ICON(ICON:Paste),TIP('Paste Password Button<13,10>A simple workaroun' & |
-                'd to broken paste on Password ENTRY'),FLAT
+        BUTTON,AT(287,40,11,11),USE(?PastePwd),SKIP,ICON(ICON:Paste),TIP('Paste Password Button<13>' & |
+                '<10>A simple workaround to broken paste on Password ENTRY'),FLAT
         STRING('Paste will NOT work on ENTRY'),AT(193,83),USE(?PasteFYI:1)
         STRING('Neither Ctrl+V nor Right-Mouse'),AT(193,95),USE(?PasteFYI:2)
         STRING('Paste WILL work on an API Text with Password'),AT(11,95),USE(?PasteFYI:3)
@@ -184,6 +194,23 @@ CbWndPrv CBWndPreviewClass
                                 '||EntryUser<9>=' & EntryUser & '|EntryPwd<9>=' & EntryPwd)
         OF ?HuntWingDingBtn ; HuntWingdingPossibles()
         OF ?CueBannerBtn    ; Test_CueBanner_Password()
+        END
+        CASE FIELD()
+        OF ?EyePeekPwd:REGION
+           
+           !This creates a CLONE of the Password control w/o the Password attribute
+           !It seems kind of complicated but works and does not change cursor position in the Entry
+           !I have this in my live code and its working 
+           CASE EVENT()
+           OF EVENT:MouseIn   
+                PeekFEQ=CLONE(0,?TextPwd)      !Create a copy of our TEXT, it will have USE() variable
+                PeekFEQ{PROP:Skip}=1           !Don't let it take focus
+                PasswordOnTextDots(PeekFEQ,1)  !1=Turn OFF ES_Password **** 
+                UNHIDE(PeekFEQ)                !Make it visible, it should be on top on real Pwd
+           OF EVENT:MouseOut 
+                HIDE(PeekFEQ) 
+                DESTROY(PeekFEQ) 
+           END         
         END
     END 
   

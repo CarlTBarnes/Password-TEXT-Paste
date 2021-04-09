@@ -1,3 +1,10 @@
+! Password Entry using TEXT with a Manifest for Visual Styles
+!------------------------------------------------------------------------------
+!04/09/21
+!   Added a "Eye Peek" Icon (Webdings N) next to the password field.
+!   The EYE has a REGION over it so when the user hovers the Mouse over
+!   the EYE the Password displays.
+!
 !06/11/20 
 ! 
 ! >>> If you have a Manifest for Visual Styles then THIS IS THE CODE YOU WANT to use. <<<
@@ -36,6 +43,7 @@ bShowName STRING(1)
 TextUser  STRING(20)  
 TextPwd   STRING(20)
 P         BYTE 
+PeekFEQ LONG   !Clone Password TEXT CREATE()'d to show the Password
 
 Window WINDOW('Text Password Paste+Dots+Cue w/ Manifest & GWLStyle'),AT(,,270,105),GRAY,SYSTEM, |
             ICON(ICON:Paste),FONT('Segoe UI',9),CENTER
@@ -45,6 +53,8 @@ Window WINDOW('Text Password Paste+Dots+Cue w/ Manifest & GWLStyle'),AT(,,270,10
         TEXT,AT(47,21,129,11),USE(TextUser),SINGLE
         PROMPT('Password:'),AT(11,39),USE(?TextPwd:Pmt)
         TEXT,AT(47,39,129,11),USE(TextPwd),SINGLE
+        STRING('N'),AT(184,39),USE(?EyePeekPwd:String),FONT('Webdings',16)
+        REGION,AT(183,38,14,14),USE(?EyePeekPwd:REGION),IMM
         CHECK('&Show Name'),AT(185,21),USE(bShowName),SKIP
         BUTTON('Login'),AT(46,60,43),USE(?LoginBtn)
         BUTTON('Cancel'),AT(98,60,43),USE(?CancelBtn),STD(STD:Close)
@@ -53,7 +63,7 @@ Window WINDOW('Text Password Paste+Dots+Cue w/ Manifest & GWLStyle'),AT(,,270,10
                 USE(?CueBFYI:3)
         STRING('CueBanner works with Dots this way. Paste works.'),AT(3,93),USE(?CueBFYI:4)
     END
- 
+
     CODE
     OPEN(Window)
 
@@ -71,6 +81,36 @@ Window WINDOW('Text Password Paste+Dots+Cue w/ Manifest & GWLStyle'),AT(,,270,10
         OF ?LoginBtn  ; Message('TextUser<9>=' & TextUser & '|TextPwd<9>=' & TextPwd )
         OF ?EntryBtn  ; START(Test_ENTRY_Password,,0{PROP:XPos},0{PROP:YPos}+0{PROP:Height}+20)
         END
+        CASE FIELD()
+        OF ?EyePeekPwd:REGION
+           
+           !This creates a CLONE of the Password control w/o the Password attribute
+           !It seems kind of complicated but works and does not change cursor position in the Entry
+           !I have this in my live code and its working 
+           CASE EVENT()
+           OF EVENT:MouseIn   
+                PeekFEQ=CLONE(0,?TextPwd)    !Create a copy of our TEXT, it will have USE() variable
+                PeekFEQ{PROP:Skip}=1         !Don't let it take focus
+                PasswordOnText_SetGwlStyle(PeekFEQ, 1 )  !Remove Password ****
+                UNHIDE(PeekFEQ)              !Make it visible, it should be on top on real Pwd
+                !HIDE(?TextPwd)              !not needed, PeekFEQ TEXT is on top of password
+           OF EVENT:MouseOut 
+                HIDE(PeekFEQ) 
+                DESTROY(PeekFEQ) 
+                !UNHIDE(?TextPwd)            !not needed 
+           END 
+
+    OMIT('**END**')
+           !With this method if the user has not tabbed out of the Control 
+           !on Mouse Out the control takes focus and has all text selected. 
+           !Possibly confusing but the code is simpler
+           CASE EVENT()
+           OF EVENT:MouseIn  ; PasswordOnText_SetGwlStyle( ?TextPwd, 1 )
+           OF EVENT:MouseOut ; PasswordOnText_SetGwlStyle( ?TextPwd, 0 )
+           END
+    !end of OMIT('**END**')
+
+        END 
     END 
 
 
