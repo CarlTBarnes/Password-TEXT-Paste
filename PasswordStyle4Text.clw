@@ -43,10 +43,11 @@ bShowName STRING(1)
 TextUser  STRING(20)  
 TextPwd   STRING(20)
 P         BYTE 
-PeekFEQ LONG   !Clone Password TEXT CREATE()'d to show the Password
+PeekFEQ   LONG  !Clone Password TEXT CREATE()'d to show the Password
+PeekCheck BOOL  !Reveral password while checked
 
-Window WINDOW('Text Password Paste+Dots+Cue w/ Manifest & GWLStyle'),AT(,,270,105),GRAY,SYSTEM, |
-            ICON(ICON:Paste),FONT('Segoe UI',9),CENTER
+Window WINDOW('Text Password Paste+Dots+Cue w/ Manifest & GWLStyle'),AT(,,270,105),CENTER,GRAY,SYSTEM, |
+            ICON(ICON:Paste),FONT('Segoe UI',9)
         STRING('Password as TEXT,SINGLE + ES_Password + Cue Banner + Manifest'),AT(11,4), |
                 FONT(,10,,FONT:regular+FONT:underline)
         PROMPT('Login:'),AT(11,21),USE(?TextUser:Pmt)
@@ -54,7 +55,9 @@ Window WINDOW('Text Password Paste+Dots+Cue w/ Manifest & GWLStyle'),AT(,,270,10
         PROMPT('Password:'),AT(11,39),USE(?TextPwd:Pmt)
         TEXT,AT(47,39,129,11),USE(TextPwd),SINGLE
         STRING('N'),AT(184,39),USE(?EyePeekPwd:String),FONT('Webdings',16)
-        REGION,AT(183,38,14,14),USE(?EyePeekPwd:REGION),IMM
+        REGION,AT(185,40,10,10),USE(?EyePeekPwd:REGION),IMM
+        CHECK('N'),AT(207,38,15,14),USE(PeekCheck),SKIP,FLAT,FONT('Webdings',16),ICON(ICON:None), |
+                TIP('Example of Latched Button to Reveal Password instead of Hover')
         CHECK('&Show Name'),AT(185,21),USE(bShowName),SKIP
         BUTTON('Login'),AT(46,60,43),USE(?LoginBtn)
         BUTTON('Cancel'),AT(98,60,43),USE(?CancelBtn),STD(STD:Close)
@@ -80,6 +83,14 @@ Window WINDOW('Text Password Paste+Dots+Cue w/ Manifest & GWLStyle'),AT(,,270,10
         OF ?bShowName ; PasswordOnText_SetGwlStyle( ?TextUser, bShowName ) ; DISPLAY
         OF ?LoginBtn  ; Message('TextUser<9>=' & TextUser & '|TextPwd<9>=' & TextPwd )
         OF ?EntryBtn  ; START(Test_ENTRY_Password,,0{PROP:XPos},0{PROP:YPos}+0{PROP:Height}+20)
+        OF ?PeekCheck
+            IF PeekCheck THEN   !Reveal Password?
+               HIDE(?EyePeekPwd:String,?EyePeekPwd:REGION)
+               PasswordOnText_SetGwlStyle(?TextPwd, 1 )  !Remove Password ABCD
+            ELSE 
+               UNHIDE(?EyePeekPwd:String,?EyePeekPwd:REGION)                  
+               PasswordOnText_SetGwlStyle(?TextPwd, 0 )  !Make Password ****
+            END 
         END
         CASE FIELD()
         OF ?EyePeekPwd:REGION

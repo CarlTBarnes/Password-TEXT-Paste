@@ -114,6 +114,7 @@ TextUser  STRING(20)
 TextPwd   STRING(20)
 P         BYTE 
 PeekFEQ   LONG   !Clone Password ENTRY CREATE()'d to show the Password
+PeekCheck BOOL
 
 Window WINDOW('Login - API TEXT Password versus Clarion ENTRY'),AT(,,307,113),CENTER,GRAY,SYSTEM, |
             ICON(ICON:Paste),FONT('Segoe UI',9)
@@ -124,15 +125,17 @@ Window WINDOW('Login - API TEXT Password versus Clarion ENTRY'),AT(,,307,113),CE
         TEXT,AT(51,39,50,11),USE(TextPwd),SINGLE
         STRING('N'),AT(105,38),USE(?EyePeekPwd:String),FONT('Webdings',16)
         REGION,AT(103,38,14,14),USE(?EyePeekPwd:REGION),IMM
+        CHECK('N'),AT(122,38,15,14),USE(PeekCheck),SKIP,FLAT,FONT('Webdings',16),ICON(ICON:None), |
+                TIP('Example of Latched Button to Reveal Password instead of Hover')
         PROMPT('Unmasked:'),AT(11,54),USE(?TextPwd:Pmt:2)
         TEXT,AT(51,54,50,11),USE(TextPwd,, ?TextPwd:Unmasked),SKIP,TIP('Password field w/o "ES_Password"'), |
                 READONLY,SINGLE
         CHECK('&Show Name'),AT(106,21),USE(bShowName),SKIP
         BUTTON('Login'),AT(25,73,35),USE(?LoginBtn)
         BUTTON('Cancel'),AT(63,73,35),USE(?CancelBtn),STD(STD:Close)
-        BUTTON('Cue Banner'),AT(121,73,47,14),USE(?CueBannerBtn),FONT(,8)
-        BUTTON('Set<13,10>Clip to<13,10>Clock()'),AT(138,40,30,28),USE(?TimeBtn),SKIP,FONT(,8), |
-                TIP('Put time on clipboard to have something to paste')
+        BUTTON('Cue Banner'),AT(122,73,47,14),USE(?CueBannerBtn),FONT(,8)
+        BUTTON('Clip=Clock()'),AT(122,56,47,14),USE(?TimeBtn),SKIP,FONT(,8),TIP('Put Time on Clipboa' & |
+                'rd to have something to paste')
         BUTTON('<0DCh>'),AT(238,55,14,14),USE(?PwdChar),SKIP,FONT('Wingdings 2'),TIP('Select differe' & |
                 'nt character for PasswordEntryAsDots()')
         BUTTON('Hunt'),AT(255,55,23,14),USE(?HuntWingDingBtn),FONT(,8),TIP('See possible wingding ch' & |
@@ -193,7 +196,15 @@ CbWndPrv CBWndPreviewClass
         OF ?LoginBtn  ; Message('TextUser<9>=' & TextUser & '|TextPwd<9>=' & TextPwd & |
                                 '||EntryUser<9>=' & EntryUser & '|EntryPwd<9>=' & EntryPwd)
         OF ?HuntWingDingBtn ; HuntWingdingPossibles()
-        OF ?CueBannerBtn    ; Test_CueBanner_Password()
+        OF ?CueBannerBtn    ; Test_CueBanner_Password() 
+        OF ?PeekCheck
+            IF PeekCheck THEN   !Reveal Password?
+               HIDE(?EyePeekPwd:String,?EyePeekPwd:REGION)
+               PasswordOnTextDots(?TextPwd,1)  !Remove Password ABCD
+            ELSE 
+               UNHIDE(?EyePeekPwd:String,?EyePeekPwd:REGION)                  
+               PasswordOnTextDots(?TextPwd,0)  !Make Password ****
+            END         
         END
         CASE FIELD()
         OF ?EyePeekPwd:REGION
