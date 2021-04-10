@@ -1,5 +1,11 @@
 ! Password Entry using TEXT with a Manifest for Visual Styles
-!------------------------------------------------------------------------------
+!------------------------------------------------------------------------------ 
+!04/10/21
+!   Optionlly set "HoverMustClick EQUATE(0)" as (1) then a Click on the Eye is required to reveal
+!   The password is hidden once the hover over the Eye stops.
+!   Just an idea. Some are concerned the simple hover risks revealing the password.
+!   The best option is probably a simple CHECKBOX, but this way the password cannot be left unhidden.
+!
 !04/09/21
 !   Added a "Eye Peek" Icon (Webdings N) next to the password field.
 !   The EYE has a REGION over it so when the user hovers the Mouse over
@@ -43,8 +49,13 @@ bShowName STRING(1)
 TextUser  STRING(20)  
 TextPwd   STRING(20)
 P         BYTE 
+
 PeekFEQ   LONG  !Clone Password TEXT CREATE()'d to show the Password
-PeekCheck BOOL  !Reveral password while checked
+PeekCheck BOOL  !Reveal password while CheckBox is checked
+
+HoverMustClick EQUATE(0)     !Some suggest the Hover Unhide risks revealing password accidentally and want Click.
+                    !(1)=Click on Eye to Peek, then hide when Hover moves off Eye. 
+                             !Probably better to use the Latched Eye or simple Check('Show Password')
 
 Window WINDOW('Text Password Paste+Dots+Cue w/ Manifest & GWLStyle'),AT(,,270,105),CENTER,GRAY,SYSTEM, |
             ICON(ICON:Paste),FONT('Segoe UI',9)
@@ -55,7 +66,7 @@ Window WINDOW('Text Password Paste+Dots+Cue w/ Manifest & GWLStyle'),AT(,,270,10
         PROMPT('Password:'),AT(11,39),USE(?TextPwd:Pmt)
         TEXT,AT(47,39,129,11),USE(TextPwd),SINGLE
         STRING('N'),AT(184,39),USE(?EyePeekPwd:String),FONT('Webdings',16)
-        REGION,AT(185,40,10,10),USE(?EyePeekPwd:REGION),IMM
+        REGION,AT(185,40,10,10),USE(?EyePeekPwd:REGION),IMM,CURSOR(CURSOR:Hand)
         CHECK('N'),AT(207,38,15,14),USE(PeekCheck),SKIP,FLAT,FONT('Webdings',16),ICON(ICON:None), |
                 TIP('Example of Latched Button to Reveal Password instead of Hover')
         CHECK('&Show Name'),AT(185,21),USE(bShowName),SKIP
@@ -98,17 +109,34 @@ Window WINDOW('Text Password Paste+Dots+Cue w/ Manifest & GWLStyle'),AT(,,270,10
            !This creates a CLONE of the Password control w/o the Password attribute
            !It seems kind of complicated but works and does not change cursor position in the Entry
            !I have this in my live code and its working 
-           CASE EVENT()
+           CASE EVENT()   
+          
+    OMIT('!**End No Click Peek**', HoverMustClick)      !Shows on Hover over Eye
            OF EVENT:MouseIn   
                 PeekFEQ=CLONE(0,?TextPwd)    !Create a copy of our TEXT, it will have USE() variable
                 PeekFEQ{PROP:Skip}=1         !Don't let it take focus
                 PasswordOnText_SetGwlStyle(PeekFEQ, 1 )  !Remove Password ****
                 UNHIDE(PeekFEQ)              !Make it visible, it should be on top on real Pwd
-                !HIDE(?TextPwd)              !not needed, PeekFEQ TEXT is on top of password
-           OF EVENT:MouseOut 
-                HIDE(PeekFEQ) 
-                DESTROY(PeekFEQ) 
-                !UNHIDE(?TextPwd)            !not needed 
+    !end of OMIT('!**End No Click Peek**', HoverMustClick)
+
+    COMPILE('!**End Click to Peek**', HoverMustClick=1)  !Shows on Click on Eye, show until Hover Stops. Latched is probably better
+           OF EVENT:MouseDown   
+              IF ~PeekFEQ THEN
+                 PeekFEQ=CLONE(0,?TextPwd)    !Create a copy of our TEXT, it will have USE() variable
+                 PeekFEQ{PROP:Skip}=1         !Don't let it take focus
+                 PasswordOnText_SetGwlStyle(PeekFEQ, 1 )  !Remove Password ****
+                 UNHIDE(PeekFEQ)              !Make it visible, it should be on top on real Pwd
+              END
+
+    !end of COMPILE('!**End Click to Peek**', ~HoverMustClick)
+
+           OF EVENT:MouseOut
+              IF PeekFEQ THEN 
+                 HIDE(PeekFEQ) 
+                 DESTROY(PeekFEQ) 
+                 PeekFEQ=0
+              END 
+
            END 
 
     OMIT('**END**')
