@@ -27,7 +27,7 @@ Code changes are similar to Release 1, just a different function to call:
 
 ## Clarion Password Entry Cannot Paste - Release 1
 
-Someone at SoftVelocity decided pasting into an ENTRY,PASSWORD was a security risk so changed Paste to simply not work?! This confuses users. It makes it hard for the user to use complex passwords, which are more secure. C++, VB, C#, Delphi do not have this restriction.
+In Clarion 7.x someone at SoftVelocity decided pasting into an ENTRY,PASSWORD was a security risk so changed Paste to simply not work?! This confuses users. It makes it hard for them to use complex passwords, which are more secure. C++, VB, C#, Delphi do not have this restriction. The restriction will be removed in Clarion 11.1, which will not affect this code working.
 
 One workaround is to `Alert(CtrlV)` and when the key is pressed `CHANGE(?Pwd,ClipBoard())` so paste works. You also need to `Alert(MouseRight)` then `Popup('Paste')` and handle that. A bonus is you can clear the password from the Clipboard as a good security thing.
 
