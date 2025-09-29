@@ -27,11 +27,17 @@ Code changes are similar to Release 1, just a different function to call:
 
 ## Clarion Password Entry Cannot Paste - Release 1
 
-In Clarion 7.x someone at SoftVelocity decided pasting into an ENTRY,PASSWORD was a security risk so changed Paste to simply not work?! This confuses users. It makes it hard for them to use complex passwords, which are more secure. C++, VB, C#, Delphi do not have this restriction. The restriction will be removed in Clarion 11.1, which will not affect this code working.
+In Clarion 7.x someone at SoftVelocity decided pasting into an ENTRY,PASSWORD was a security risk so changed Paste to simply not work! This confuses users. It makes it hard for them to use complex passwords, which are more secure. C++, VB, C#, Delphi do not have this restriction. 
 
-One workaround is to `Alert(CtrlV)` and when the key is pressed `CHANGE(?Pwd,ClipBoard())` so paste works. You also need to `Alert(MouseRight)` then `Popup('Paste')` and handle that. A bonus is you can clear the password from the Clipboard as a good security thing.
+One workaround is to `Alert(CtrlV)` and when the key is pressed `CHANGE(?Pwd,ClipBoard())` so paste works. You also need to `Alert(MouseRight)` then `Popup('Paste')` and handle that.
+ An even simpler workaround is to add a "Paste Password" button next to the Entry.
+ A bonus is you can clear the password from the Clipboard after paste as a good security thing. 
 
 The project in this repository shows an easier workaround and some other tricks and tips, plus a better looking password control.
+
+In Clarion 11.1.13744 released June 4, 2021 (Gold Release) the Paste restriction was removed. 
+ I verified in 11.1.13815 and 12.13941 that both Ctrl+V and Right-Click popup are fixed to Paste into the Password Entry. 
+  This RTL change will Not affect this paste workaround code working to implement paste using a TEXT control and the API.
 
 <img src="readme_win.png" width="640"/>
 
